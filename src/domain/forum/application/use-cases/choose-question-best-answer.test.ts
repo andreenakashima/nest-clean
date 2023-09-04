@@ -46,7 +46,7 @@ describe('Choose question best answer', () => {
       authorId: question.authorId.toString(),
     });
 
-    expect(inMemoryQuestionsRepository.items[0].bestAnswerID).toEqual(
+    expect(inMemoryQuestionsRepository.items[0].bestAnswerId).toEqual(
       answer.id,
     );
   });
