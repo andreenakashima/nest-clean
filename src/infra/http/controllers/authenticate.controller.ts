@@ -27,7 +27,7 @@ export class AuthenticateController {
       throw new Error();
     }
 
-    const accessToken = result.value;
+    const { accessToken } = result.value;
 
     return {
       access_token: accessToken,
