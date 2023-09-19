@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Post } from '@nestjs/common';
 import { CurrentUser } from '../../auth/current-user-decorator';
 import { UserPayload } from '../../auth/jwt.strategy';
 import { ZodValidationPipe } from '../pipes/zod-validation-pipe';
