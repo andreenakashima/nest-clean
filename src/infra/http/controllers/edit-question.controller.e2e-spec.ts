@@ -86,6 +86,7 @@ describe('Edit question (E2E)', () => {
     });
 
     expect(questionOnDatabase).toBeTruthy();
+
     const attachmentsOnDatabase = await prisma.attachment.findMany({
       where: {
         questionId: questionOnDatabase?.id,
