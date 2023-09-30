@@ -1,42 +1,48 @@
-import { InMemoryAnswersRepository } from "test/repositories/in-memory-answers-repository";
-import { makeAnswer } from "test/factories/make-answer";
-import { CommentOnAnswerUseCase } from "./comment-on-answer";
-import { InMemoryAnswerCommentsRepository } from "test/repositories/in-memory-answer-comments-repository";
-import { InMemoryAnswerAttachmentsRepository } from "test/repositories/in-memory-answer-attachments-repository";
+import { InMemoryAnswersRepository } from 'test/repositories/in-memory-answers-repository';
+import { makeAnswer } from 'test/factories/make-answer';
+import { CommentOnAnswerUseCase } from './comment-on-answer';
+import { InMemoryAnswerCommentsRepository } from 'test/repositories/in-memory-answer-comments-repository';
+import { InMemoryAnswerAttachmentsRepository } from 'test/repositories/in-memory-answer-attachments-repository';
+import { InMemoryStudentsRepository } from 'test/repositories/in-memory-students-repository';
 
 let inMemoryAnswerAttachmentsRepository: InMemoryAnswerAttachmentsRepository;
 let inMemoryAnswersRepository: InMemoryAnswersRepository;
 let inMemoryAnswerCommentsRepository: InMemoryAnswerCommentsRepository;
+let inMemoryStudentsRepository: InMemoryStudentsRepository;
 let sut: CommentOnAnswerUseCase;
 
-describe("Comment on Answer", () => {
-	beforeEach(() => {
-		inMemoryAnswerAttachmentsRepository =
-			new InMemoryAnswerAttachmentsRepository();
-		inMemoryAnswersRepository = new InMemoryAnswersRepository(
-			inMemoryAnswerAttachmentsRepository
-		);
-		inMemoryAnswerCommentsRepository = new InMemoryAnswerCommentsRepository();
+describe('Comment on Answer', () => {
+  beforeEach(() => {
+    inMemoryAnswerAttachmentsRepository =
+      new InMemoryAnswerAttachmentsRepository();
+    inMemoryAnswersRepository = new InMemoryAnswersRepository(
+      inMemoryAnswerAttachmentsRepository,
+    );
+    inMemoryStudentsRepository = new InMemoryStudentsRepository();
 
-		sut = new CommentOnAnswerUseCase(
-			inMemoryAnswersRepository,
-			inMemoryAnswerCommentsRepository
-		);
-	});
+    inMemoryAnswerCommentsRepository = new InMemoryAnswerCommentsRepository(
+      inMemoryStudentsRepository,
+    );
 
-	it("should be able to comment on answer", async () => {
-		const answer = makeAnswer();
+    sut = new CommentOnAnswerUseCase(
+      inMemoryAnswersRepository,
+      inMemoryAnswerCommentsRepository,
+    );
+  });
 
-		await inMemoryAnswersRepository.create(answer);
+  it('should be able to comment on answer', async () => {
+    const answer = makeAnswer();
 
-		await sut.execute({
-			answerId: answer.id.toString(),
-			authorId: answer.authorId.toString(),
-			content: "Comentário teste",
-		});
+    await inMemoryAnswersRepository.create(answer);
 
-		expect(inMemoryAnswerCommentsRepository.items[0].content).toEqual(
-			"Comentário teste"
-		);
-	});
+    await sut.execute({
+      answerId: answer.id.toString(),
+      authorId: answer.authorId.toString(),
+      content: 'Comentário teste',
+    });
+
+    expect(inMemoryAnswerCommentsRepository.items[0].content).toEqual(
+      'Comentário teste',
+    );
+  });
 });

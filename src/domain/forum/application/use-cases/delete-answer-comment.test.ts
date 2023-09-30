@@ -1,45 +1,51 @@
-import { InMemoryAnswerCommentsRepository } from "test/repositories/in-memory-answer-comments-repository";
-import { DeleteAnswerCommentUseCase } from "./delete-answer-comment";
-import { makeAnswerComment } from "test/factories/make-answer-comment";
-import { UniqueEntityID } from "@/core/entities/unique-entity-id";
-import { NotAllowedError } from "@/core/errors/errors/not-allowed-error";
+import { InMemoryAnswerCommentsRepository } from 'test/repositories/in-memory-answer-comments-repository';
+import { DeleteAnswerCommentUseCase } from './delete-answer-comment';
+import { makeAnswerComment } from 'test/factories/make-answer-comment';
+import { UniqueEntityID } from '@/core/entities/unique-entity-id';
+import { NotAllowedError } from '@/core/errors/errors/not-allowed-error';
+import { InMemoryStudentsRepository } from 'test/repositories/in-memory-students-repository';
 
 let inMemoryAnswerCommentsRepository: InMemoryAnswerCommentsRepository;
+let inMemoryStudentsRepository: InMemoryStudentsRepository;
 let sut: DeleteAnswerCommentUseCase;
 
-describe("Delete Answer Comment", () => {
-	beforeEach(() => {
-		inMemoryAnswerCommentsRepository = new InMemoryAnswerCommentsRepository();
+describe('Delete Answer Comment', () => {
+  beforeEach(() => {
+    inMemoryStudentsRepository = new InMemoryStudentsRepository();
 
-		sut = new DeleteAnswerCommentUseCase(inMemoryAnswerCommentsRepository);
-	});
+    inMemoryAnswerCommentsRepository = new InMemoryAnswerCommentsRepository(
+      inMemoryStudentsRepository,
+    );
 
-	it("should be able to delete a answer comment", async () => {
-		const answerComment = makeAnswerComment();
+    sut = new DeleteAnswerCommentUseCase(inMemoryAnswerCommentsRepository);
+  });
 
-		await inMemoryAnswerCommentsRepository.create(answerComment);
+  it('should be able to delete a answer comment', async () => {
+    const answerComment = makeAnswerComment();
 
-		await sut.execute({
-			answerCommentId: answerComment.id.toString(),
-			authorId: answerComment.authorId.toString(),
-		});
+    await inMemoryAnswerCommentsRepository.create(answerComment);
 
-		expect(inMemoryAnswerCommentsRepository.items).toHaveLength(0);
-	});
+    await sut.execute({
+      answerCommentId: answerComment.id.toString(),
+      authorId: answerComment.authorId.toString(),
+    });
 
-	it("should not be able to delete another user answer comment", async () => {
-		const answerComment = makeAnswerComment({
-			authorId: new UniqueEntityID("author-1"),
-		});
+    expect(inMemoryAnswerCommentsRepository.items).toHaveLength(0);
+  });
 
-		await inMemoryAnswerCommentsRepository.create(answerComment);
+  it('should not be able to delete another user answer comment', async () => {
+    const answerComment = makeAnswerComment({
+      authorId: new UniqueEntityID('author-1'),
+    });
 
-		const result = await sut.execute({
-			answerCommentId: answerComment.id.toString(),
-			authorId: "author-2",
-		});
+    await inMemoryAnswerCommentsRepository.create(answerComment);
 
-		expect(result.isLeft()).toBe(true);
-		expect(result.value).toBeInstanceOf(NotAllowedError);
-	});
+    const result = await sut.execute({
+      answerCommentId: answerComment.id.toString(),
+      authorId: 'author-2',
+    });
+
+    expect(result.isLeft()).toBe(true);
+    expect(result.value).toBeInstanceOf(NotAllowedError);
+  });
 });
